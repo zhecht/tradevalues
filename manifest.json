@@ -1,6 +1,6 @@
 {
 	"name": "Trade Value Calculator",
-	"version": "0.0.0.5",
+	"version": "0.0.0.7",
 	"description": "",
 	"permissions": ["<all_urls>", "activeTab", "declarativeContent", "storage"],
 	"background": {

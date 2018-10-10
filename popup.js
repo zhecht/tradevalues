@@ -99,7 +99,7 @@ var increment = function() {
 
 chrome.tabs.executeScript(null, {file: "content_script.js"});
 setTimeout(function(){
-	chrome.storage.local.get(["team0", "team1", "team0_name", "team1_name", "players_picked"], function (results){
+	chrome.storage.local.get(["team0", "team1", "team0_name", "team1_name", "players_picked", "is_espn"], function (results){
 		//console.log(results);
 		fillTable(results);
 		var tds = document.getElementsByClassName("player_td");
