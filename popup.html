@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<!-- <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script> -->
+		<style>
+			body {
+			}
+			button {
+				height: 30px;
+				width: 30px;
+				outline: none;
+			}
+			table {
+				border-collapse: collapse;
+				width: 300px;
+				height: 100px;
+			}
+			tr {
+				border: 1px solid;
+			}
+			tr td:nth-child(1), tr th:nth-child(1) {
+				border-right: 1px solid;
+			}
+			td, th {
+				padding: 5px;
+			}
+			.best, .clicked {
+				background-color: #00ff00;
+			}
+		</style>
+	</head>
+	<body>
+		<table>
+			<thead>
+				<tr>
+					<th class="name"></th>
+					<th class="name"></th>
+				</tr>
+			</thead>
+			<tbody id="table">
+				<tr><td colspan="2" style="background: black; opacity: .3"></td></tr>
+			</tbody>
+		</table>
+		<script src="popup.js"></script>
+	</body>
+</html>
