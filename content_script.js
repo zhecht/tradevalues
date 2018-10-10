@@ -22,19 +22,36 @@ function formatArgs(trade_results) {
 	return encodeURI(args);
 }
 
+function getOffenseIndexes(tables) {
+	var indexes = [];
+	for (var i = 0; i < tables.length; ++i) {
+		try {
+			var ths = tables[i].getElementsByTagName("thead")[0].getElementsByTagName("tr")[1].getElementsByTagName("th");
+			//var which = ths[1].getElementsByTagName("div")[0].innerHTML;
+			if (ths[0].getElementsByTagName("div")[0].innerHTML === "Offense" || ths[1].getElementsByTagName("div")[0].innerHTML === "Offense") {
+				indexes.push(i);
+			}
+		} catch (err) {
+
+		}
+	}
+	return indexes;
+}
+
 var viewtrade = (window.location.pathname.indexOf("viewtrade") !== -1);
 var players_picked = (window.location.search.indexOf("stage=1") === -1) || viewtrade;
 var tradeform = document.getElementById("proposetradeform");
 var evaluate = (document.getElementsByTagName("h1")[0].innerHTML === "Evaluate Trade");
 
-var tables = [document.getElementsByClassName("Table")[0], document.getElementsByClassName("Table")[3]];
+console.log(viewtrade, players_picked, evaluate);
+
+var tables;
 if (evaluate) {
 	tradeform = document.getElementById("evaluate-players");
 	tables = [tradeform.getElementsByTagName("section")[0], tradeform.getElementsByTagName("section")[1]]
-} else if (viewtrade) {
-	tables = [document.getElementsByClassName("Table")[0], document.getElementsByClassName("Table")[1]];
-} else if (players_picked) {
-	tables = [tradeform.children[0], tradeform.children[2]];
+} else {
+	var indexes = getOffenseIndexes(document.getElementsByClassName("Table"));
+	tables = [document.getElementsByClassName("Table")[indexes[0]], document.getElementsByClassName("Table")[indexes[1]]];
 }
 
 var trade_results = [ {"players": []}, {"players": []} ];
@@ -49,14 +66,15 @@ for (var i = 0; i < 2; ++i) {
 	var empty_len = 0;
 	for (var j = 0; j < names.length; ++j) {
 		var checked = false;
-		var span = names[j].getElementsByClassName("Fz-xxs")[0].innerHTML;
-		//var span = names[j].getElementsByTagName("span")[0].innerHTML;
-		if (evaluate) {
-			span = names[j].getElementsByClassName("Fz-xxs")[1].innerHTML;
-			//span = names[j].getElementsByTagName("span")[1].innerHTML;
-		}
+		if (names[j].getElementsByTagName("span")[0].innerHTML !== "(Empty)") {
+			var span = names[j].getElementsByClassName("Fz-xxs")[0].innerHTML;
+			//var span = names[j].getElementsByTagName("span")[0].innerHTML;
+			if (evaluate) {
+				span = names[j].getElementsByClassName("Fz-xxs")[1].innerHTML;
+				//span = names[j].getElementsByTagName("span")[1].innerHTML;
+			}
 
-		if (span !== "(Empty)") {
+		
 			if (!players_picked) {
 				checked = inputs[j - empty_len].checked;
 			}
@@ -97,8 +115,8 @@ xhttp.onreadystatechange = function() {
 	}
 };
 var args = formatArgs(trade_results);
-//xhttp.open("GET", "http://localhost:3000/extension"+args);
-xhttp.open("GET", "https://zhecht.pythonanywhere.com/extension"+args);
+xhttp.open("GET", "http://localhost:3000/extension"+args);
+//xhttp.open("GET", "https://zhecht.pythonanywhere.com/extension"+args);
 xhttp.send();
 
 
