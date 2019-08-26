@@ -1,19 +1,17 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<!-- <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script> -->
 		<style>
+
 			body {
-			}
-			button {
-				height: 30px;
-				width: 30px;
-				outline: none;
 			}
 			table {
 				border-collapse: collapse;
 				width: 300px;
 				height: 100px;
+				margin-top: 8px;
+				margin-bottom: 8px;
+				float: left;
 			}
 			tr {
 				border: 1px solid;
@@ -24,12 +22,46 @@
 			td, th {
 				padding: 5px;
 			}
+			td:hover {
+				cursor: pointer;
+			}
+			div {
+				width: 300px;
+				float:left;
+			}
+			button {
+				color: white;
+				text-align: center;
+				cursor: pointer;
+				background: rgba(0,0,0,0);
+				float: left;
+				width: 100px;
+				color: #006BB6;
+				padding: 7px;
+			}
+
+			button.active {
+				box-shadow: inset 0 0 0 0px white,inset 0 5px 40px #231F20;
+			}
 			.best, .clicked {
 				background-color: #00ff00;
 			}
+			#updated {
+				text-align: center;
+				padding-top: 5px;
+				font-style: italic;
+			}		
 		</style>
 	</head>
 	<body>
+		<div>
+			<button id="1">STANDARD</button>
+			<button id="2" class="active">HALF-PPR</button>
+			<button id="3">FULL-PPR</button>
+		</div>
+		<div id="updated">
+			<span>Last Updated: Week ()</span>
+		</div>
 		<table>
 			<thead>
 				<tr>
@@ -41,6 +73,7 @@
 				<tr><td colspan="2" style="background: black; opacity: .3"></td></tr>
 			</tbody>
 		</table>
+		<input type="hidden" id="scoring_idx"  value="2" />
 		<script src="popup.js"></script>
 	</body>
 </html>
