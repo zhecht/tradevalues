@@ -159,6 +159,7 @@ function last_updated(date) {
 
 function callback(results) {
 	chrome.storage.local.get(["args", "players_picked", "evaluate", "viewtrade", "team_name0", "team_name1", "is_espn", "is_nfl"], function(res) {
+		players_picked = res["players_picked"];
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState === 4 && this.status === 200) {

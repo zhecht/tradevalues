@@ -49,40 +49,49 @@ var is_espn = (window.location.host.indexOf("espn") != -1);
 var is_nfl = window.location.host == "fantasy.nfl.com";
 var path = window.location.pathname.split("/").pop();
 var trade_results = [ {"players": []}, {"players": []} ];
-var players_picked = false, evaluate = false, viewtrade = false, is_nfl = false;
+var players_picked = false, evaluate = false, viewtrade = false;
 
 if (is_espn) {
-	var tables = [document.getElementsByClassName("playerTableTable")[0], document.getElementsByClassName("playerTableTable")[1]];
-	for (var i = 0; i < 2; ++i) {
-		names = tables[i].getElementsByClassName("playertablePlayerName");
-		
-		if (i == 0) {
-			var inputs = tables[i].getElementsByTagName("input");
-		} else {
-			var inputs = tables[i].getElementsByTagName("select");
+	var step2 = window.location.search.substring(1).indexOf("step=2") !== -1;
+	
+	if (step2) {
+		var tables = document.getElementsByClassName("propose-trade-content")[0].children[1].children;
+	} else {
+		var tables = document.getElementsByClassName("Table2__right-aligned");
+	}
+	var idx = 0;
+	for (var i = 0; i < tables.length; ++i) {
+		//console.log(tables[i].getElementsByTagName("span")[0].innerText, tables[i].getElementsByTagName("span")[0].innerText == "Your Players");
+		if (tables[i].getElementsByTagName("span")[0].innerText == "Your Players") {
+			idx = 1;
 		}
+
+		names = tables[i].getElementsByClassName("player-column_info");
+		
+		var inputs;
+		if (step2 && idx == 1) {
+			var inputs = tables[i].getElementsByTagName("button");
+		}
+		//console.log(names, tables[i], inputs);
 		for (var j = 0; j < names.length; ++j) {
-			if (i == 0) {
-				var checked = inputs[j].checked;	
+			if (!step2) {
+				var checked = false;
+			} else if (idx == 0 && step2) {
+				var checked = true;
 			} else {
-				var selected = inputs[j].selectedIndex;
-				var checked = (inputs[j].getElementsByTagName("option")[selected].innerHTML === "Trade");
+				var checked = false;
+				console.log(inputs[j]);
+				if ((" " + inputs[j].className + " ").indexOf(" isActive ") > -1 ) {
+					checked = true;
+				}
 			}
 			
 			var name = names[j].getElementsByTagName("a")[0].innerHTML;
-			var nodeValue = replaceNbsps(names[j].getElementsByTagName("a")[0].nextSibling.nodeValue).replace("/", "-");
-			
-			//var team = span.split(" ")[0];
-			var team = "";
-			if (nodeValue.indexOf(",") == -1) {
-				// Defense
-				var pos = nodeValue;
-			} else {
-				var span = nodeValue.split(", ")[1];
-				var pos = span.split(" ")[1];
-			}
+			var team = names[j].getElementsByClassName("playerinfo__playerteam")[0].innerText;
+			var pos = names[j].getElementsByClassName("playerinfo__playerpos")[0].innerText;
 
-			trade_results[i]["players"].push("{},{},{},{}".format(name,team,pos,checked));
+			console.log(name,team,pos,checked);
+			trade_results[idx]["players"].push("{},{},{},{}".format(name,team,pos,checked));
 		}
 	}
 } else if (is_nfl) {
@@ -91,6 +100,10 @@ if (is_espn) {
 		var tables = document.getElementsByClassName("tableWrap");
 		var team_idx = 0;
 		for (var i = 0; i < tables.length; ++i) {
+			if (tables[i].getElementsByTagName("h4").length > 0 && tables[i].getElementsByTagName("h4")[0].innerText == "Players to Drop") {
+				console.log("continuing");
+				continue;
+			}
 			if (tables[i].getElementsByTagName("h4").length > 0 && tables[i].getElementsByTagName("h4")[0].innerText.indexOf("Your Team") > -1) {
 				team_idx = 1;
 			}
@@ -192,8 +205,8 @@ if (is_espn) {
 
 var team_name0, team_name1;
 if (is_espn) {
-	team_name0 = document.getElementsByClassName("playerTableBgRowHead")[0].getElementsByTagName("th")[0].innerHTML;
-	team_name1 = document.getElementsByClassName("playerTableBgRowHead")[1].getElementsByTagName("th")[0].innerHTML;
+	team_name0 = document.getElementsByClassName("mh3")[0].innerText;
+	team_name1 = "Your Players";
 	evaluate = false;
 	players_picked = false;
 } else if (is_nfl) {
