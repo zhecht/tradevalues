@@ -18,6 +18,12 @@ chrome.runtime.onInstalled.addListener(function() {
 				pageUrl: {hostEquals: 'fantasy.nfl.com', pathContains: 'trade'},
 			})],
 			actions: [new chrome.declarativeContent.ShowPageAction()]
+		},
+		{
+			conditions: [new chrome.declarativeContent.PageStateMatcher({
+				pageUrl: {hostContains: 'cbssports', pathContains: 'trade'},
+			})],
+			actions: [new chrome.declarativeContent.ShowPageAction()]
 		}
 		]);
 	});
