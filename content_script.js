@@ -9,16 +9,17 @@ String.prototype.format = function () {
 
 function formatArgs(trade_results) {
 	var args = "?";
-	args += "team_0_len="+trade_results[0]["players"].length;
-	args += "&team_1_len="+trade_results[1]["players"].length;
-	args += "&evaluate="+evaluate;
+	args += "evaluate="+evaluate;
 	args += "&is_espn="+is_espn;
 	args += "&is_nfl="+is_nfl;
+	args += "&is_yahoo="+is_yahoo;
 	args += "&is_sleeper="+is_sleeper;
 	args += "&is_cbs="+is_cbs;
+	args += "&total_teams="+trade_results.length;
 
-	for (var i = 0; i < 2; ++i) {
+	for (var i = 0; i < trade_results.length; ++i) {
 		var players = trade_results[i]["players"];
+		args += "&team_{}_len={}".format(i, players.length);
 		for (var p = 0; p < players.length; ++p) {
 			args += "&team_"+i+"_player_"+p+"="+players[p];
 		}
@@ -62,6 +63,7 @@ if (window.location.host.indexOf("espn") >= 0) {
 var path = window.location.pathname.split("/").pop();
 var trade_results = [ {"players": []}, {"players": []} ];
 var players_picked = false, evaluate = false, viewtrade = false;
+var team_names = [];
 
 if (is_espn) {
 	var step2 = window.location.search.substring(1).indexOf("step=2") !== -1;
@@ -164,7 +166,50 @@ if (is_espn) {
 	}
 
 } else if (is_sleeper) {
+	var tables = document.getElementsByClassName("trade-state-sends");
+	var names = document.getElementsByClassName("acquire-trade-partner-item");
+	var team_idx = {};
+	trade_results = [];
+	for (var i = 0; i < names.length; ++i) {
+		var n = names[i].getElementsByClassName("name")[0].innerText;
+		team_names.push(n);
+		trade_results.push({"players": []});
+		team_idx[n] = i;
+	}
 
+	for (var i = 0; i < tables.length; ++i) {
+		var players = tables[i].getElementsByClassName("player-name");
+		for (var j = 0; j < players.length; ++j) {
+			var pos_team = players[j].getElementsByClassName("position")[0].innerText.trim();
+			var name = players[j].innerHTML.split("<span")[0];
+			var pos = pos_team.split(" - ")[0];
+			var team = pos_team.split(" - ")[1];
+			trade_results[i]["players"].push("{},{},{},{}".format(name,team,pos,true));
+		}
+	}
+
+	// now check if receive window is up
+	var win = document.getElementsByClassName("set-trade-player-modal");
+	if (win.length > 0) {
+		// find name of team that's showing
+		var name = win[0].getElementsByClassName("trade-roster-item-container selected")[0].getElementsByClassName("name")[0].innerText;
+		var rows = win[0].getElementsByClassName("team-roster-item");
+		var idx = team_idx[name];
+		// clear teams players
+		trade_results[idx]["players"] = [];
+		for (var i = 0; i < rows.length; ++i) {
+			var checked = false;
+			if ((" " + rows[i].className + " ").indexOf(" selected ") >= 0) {
+				checked = true;
+			}
+			// skip the selected players
+			name = rows[i].getElementsByClassName("name-text")[0].innerText;
+			var pos_team = rows[i].getElementsByClassName("position")[0].innerText.trim();
+			var pos = pos_team.split(" - ")[0];
+			var team = pos_team.split(" - ")[1];
+			trade_results[idx]["players"].push("{},{},{},{}".format(name,team,pos,checked));
+		}
+	}
 } else if (is_cbs) {
 	var rows = document.getElementById("teamTradeJS").getElementsByTagName("tr");
 
@@ -187,7 +232,7 @@ if (is_espn) {
 		}
 	}
 
-} else {
+} else if (is_yahoo) {
 	var viewtrade = (window.location.pathname.indexOf("viewtrade") !== -1);
 	var players_picked = (window.location.search.indexOf("stage=1") === -1) || viewtrade;
 	var tradeform = document.getElementById("proposetradeform");
@@ -241,6 +286,9 @@ if (is_espn) {
 	team_name1 = "Your Players";
 	evaluate = false;
 	players_picked = false;
+} else if (is_sleeper) {
+	evaluate = false;
+	players_picked = false;
 } else if (is_nfl) {
 	evaluate = false;
 	players_picked = false;
@@ -275,16 +323,21 @@ if (is_espn) {
 	}
 }
 
+// multiple possible teams
+if (!is_sleeper) {	
+	team_names = [team_name0, team_name1];
+}
+
 var args = formatArgs(trade_results);
 chrome.storage.local.set({
 	args: args,
-	team_name0: team_name0,
-	team_name1: team_name1,
+	team_names: team_names,
 	evaluate: evaluate,
 	viewtrade: viewtrade,
 	players_picked: players_picked,
 	is_espn: is_espn,
-	is_nfl:  is_nfl
+	is_nfl:  is_nfl,
+	is_sleeper: is_sleeper
 }, function() {});
 //xhttp.open("GET", "http://localhost:3000/extension"+args);
 //xhttp.open("GET", "https://zhecht.pythonanywhere.com/extension"+args);

@@ -1,6 +1,6 @@
 {
 	"name": "Trade Value Calculator",
-	"version": "0.0.3.3",
+	"version": "0.0.4.0",
 	"description": "Interactive trade value calculator with values taken from /u/PeakedInHighSkool",
 	"permissions": ["<all_urls>", "activeTab", "declarativeContent", "storage"],
 	"background": {

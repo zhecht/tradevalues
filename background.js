@@ -24,6 +24,12 @@ chrome.runtime.onInstalled.addListener(function() {
 				pageUrl: {hostContains: 'cbssports', pathContains: 'trade'},
 			})],
 			actions: [new chrome.declarativeContent.ShowPageAction()]
+		},
+		{
+			conditions: [new chrome.declarativeContent.PageStateMatcher({
+				pageUrl: {hostEquals: 'sleeper.app', pathContains: 'team'},
+			})],
+			actions: [new chrome.declarativeContent.ShowPageAction()]
 		}
 		]);
 	});
