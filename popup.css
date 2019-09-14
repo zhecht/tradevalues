@@ -1,11 +1,6 @@
-body {
-}
 table {
 	border-collapse: collapse;
 	width: 375px;
-	height: 150px;
-	margin-top: 8px;
-	margin-bottom: 8px;
 }
 tr {
 	border: 1px solid;
@@ -31,7 +26,6 @@ button {
 	text-align: center;
 	cursor: pointer;
 	background: rgba(0,0,0,0);
-	width: 100px;
 	color: #006BB6;
 	padding: 7px;
 	flex: 1;
@@ -43,12 +37,25 @@ button.active {
 .best, .clicked {
 	background-color: #00ff00;
 }
+#continue {
+	text-align: right;
+	display: none;
+}
+
+#continue a {
+	text-decoration: none;
+}
+
 #updated {
 	text-align: center;
-	padding-top: 5px;
-	font-style: italic;
+	font-style: italic;	
+}
+
+#updated a {
+	
 }
 
 #updated span {
 	width: 100%;
+	padding: 5px;
 }

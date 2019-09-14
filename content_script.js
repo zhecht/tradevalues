@@ -64,6 +64,7 @@ var path = window.location.pathname.split("/").pop();
 var trade_results = [ {"players": []}, {"players": []} ];
 var players_picked = false, evaluate = false, viewtrade = false;
 var team_names = [];
+var input_ids = {};
 
 if (is_espn) {
 	var step2 = window.location.search.substring(1).indexOf("step=2") !== -1;
@@ -237,25 +238,43 @@ if (is_espn) {
 	var players_picked = (window.location.search.indexOf("stage=1") === -1) || viewtrade;
 	var tradeform = document.getElementById("proposetradeform");
 	var evaluate = (document.getElementsByTagName("h1")[0].innerHTML === "Evaluate Trade");
-
-	console.log(viewtrade, players_picked, evaluate);
+	var curr_team = 0;
 
 	var tables;
+	var cutoff = 3;
 	if (evaluate) {
 		tradeform = document.getElementById("evaluate-players");
-		tables = [tradeform.getElementsByTagName("section")[0], tradeform.getElementsByTagName("section")[1]]
+		tables = [tradeform.getElementsByTagName("section")[0], tradeform.getElementsByTagName("section")[1]];
+		cutoff = 2;
 	} else {
-		var indexes = getOffenseIndexes(document.getElementsByClassName("Table"));
-		tables = [document.getElementsByClassName("Table")[indexes[0]], document.getElementsByClassName("Table")[indexes[1]]];
+		tables = tradeform.children;
 	}
 
-	for (var i = 0; i < 2; ++i) {
+	for (var i = 0; i < cutoff; ++i) {
+		// check this later but everytime...this is the section for team #2's name
+		if (i == 1) {
+			curr_team = 1;
+			if (!evaluate) {
+				continue;	
+			}
+		}
 		var names = tables[i].getElementsByClassName("ysf-player-name");
 		if (evaluate) {
 			names = tables[i].getElementsByClassName("player-details");
 		}
 		
-		var inputs = tables[i].getElementsByTagName("input");
+		var inputs = [];
+		var checkboxes = tables[i].getElementsByTagName("input");
+		for (var c = 0; c < checkboxes.length; ++c) {
+			if (checkboxes[c].type == "checkbox") {
+				inputs.push(checkboxes[c]);
+			}
+		}
+
+		if (inputs.length == 0) {
+			players_picked = true;
+		}
+
 		var empty_len = 0;
 		for (var j = 0; j < names.length; ++j) {
 			var checked = false;
@@ -264,7 +283,6 @@ if (is_espn) {
 				if (evaluate) {
 					span = names[j].getElementsByClassName("Fz-xxs")[1].innerHTML;
 				}
-
 			
 				if (!players_picked) {
 					checked = inputs[j - empty_len].checked;
@@ -272,7 +290,11 @@ if (is_espn) {
 				var name = names[j].getElementsByTagName("a")[0].innerHTML;
 				var team = span.split(" - ")[0];
 				var pos = span.split(" - ")[1];
-				trade_results[i]["players"].push("{},{},{},{}".format(name,team,pos,checked));
+				trade_results[curr_team]["players"].push("{},{},{},{}".format(name,team,pos,checked));
+				if (!players_picked) {
+					input_ids[name.toLowerCase()] = inputs[j - empty_len].id;
+				}
+				
 			} else {
 				empty_len++;
 			}
@@ -280,6 +302,7 @@ if (is_espn) {
 	}
 }
 
+// get team names
 var team_name0, team_name1;
 if (is_espn) {
 	team_name0 = document.getElementsByClassName("mh3")[0].innerText;
@@ -335,9 +358,12 @@ chrome.storage.local.set({
 	evaluate: evaluate,
 	viewtrade: viewtrade,
 	players_picked: players_picked,
+	is_yahoo: is_yahoo,
 	is_espn: is_espn,
 	is_nfl:  is_nfl,
-	is_sleeper: is_sleeper
+	is_sleeper: is_sleeper,
+	is_cbs: is_cbs,
+	input_ids: input_ids
 }, function() {});
 //xhttp.open("GET", "http://localhost:3000/extension"+args);
 //xhttp.open("GET", "https://zhecht.pythonanywhere.com/extension"+args);
