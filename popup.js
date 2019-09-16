@@ -21,9 +21,23 @@ function getVal(result) {
 	return parseFloat(split_data[1]);
 }
 
+function init_players_picked_per_team(results) {
+	if (results["is_espn"] && results.teams.team1.length == 0) {
+		players_picked_per_team[1] += 1;
+	} else if (results["is_sleeper"]) {
+		for (var i = 0; i < global_total_teams; ++i) {
+			if (results.teams["team{}".format(i)].length == 0) {
+				players_picked_per_team[i] += 1;
+			}
+		}
+	}
+}
+
 function fillTable(results) {
 	var player_len = 0;
 	var all_tot = [];
+
+	init_players_picked_per_team(results);
 	document.getElementById("total_teams").value = results["total_teams"];
 	for (var i = 0; i < results["total_teams"]; ++i) {
 		document.getElementsByClassName("name")[i].innerText = results["team_names"][i];
@@ -265,6 +279,13 @@ function callback(results) {
 				for (var i = 0; i < tds.length; ++i) {
 					if (tds[i].innerText.trim() != "-") {
 						tds[i].addEventListener("click", increment, false);
+					}
+				}
+				if (global_total_teams == 3) {
+					document.getElementsByTagName("table")[0].style = "width: 550px;";
+					var div = document.getElementsByTagName("div");
+					for (var i = 0; i < div.length; ++i) {
+						div[i].style = "width: 550px;";
 					}
 				}
 			}

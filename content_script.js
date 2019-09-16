@@ -72,7 +72,7 @@ if (is_espn) {
 	if (step2) {
 		var tables = document.getElementsByClassName("propose-trade-content")[0].children[1].children;
 	} else {
-		var tables = document.getElementsByClassName("Table2__right-aligned");
+		var tables = document.getElementsByClassName("players-table");
 	}
 	var idx = 0;
 	for (var i = 0; i < tables.length; ++i) {
@@ -105,6 +105,13 @@ if (is_espn) {
 			var pos = names[j].getElementsByClassName("playerinfo__playerpos")[0].innerText;
 
 			trade_results[idx]["players"].push("{},{},{},{}".format(name,team,pos,checked));
+			if (!step2 || (step2 && idx == 1)) {
+				//console.log(name, i, j);
+				input_ids[name.toLowerCase().replace("/", "")] = {
+					"table_idx": i,
+					"btn_idx": j
+				};
+			}
 		}
 	}
 } else if (is_nfl) {
@@ -158,57 +165,79 @@ if (is_espn) {
 						checked = true;
 					} else if (i == 0) {
 						checked = inputs[k].checked;
-					}
-					k++;
+						input_ids[full.toLowerCase().replace("/", "")] = inputs[k].id;
+					}					
 					trade_results[i]["players"].push("{},{},{},{}".format(full,team,pos,checked));
+					k++;
 				}
 			}
 		}
 	}
 
 } else if (is_sleeper) {
-	var tables = document.getElementsByClassName("trade-state-sends");
-	var names = document.getElementsByClassName("acquire-trade-partner-item");
-	var team_idx = {};
 	trade_results = [];
-	for (var i = 0; i < names.length; ++i) {
-		var n = names[i].getElementsByClassName("name")[0].innerText;
-		team_names.push(n);
-		trade_results.push({"players": []});
-		team_idx[n] = i;
-	}
-
-	for (var i = 0; i < tables.length; ++i) {
-		var players = tables[i].getElementsByClassName("player-name");
-		for (var j = 0; j < players.length; ++j) {
-			var pos_team = players[j].getElementsByClassName("position")[0].innerText.trim();
-			var name = players[j].innerHTML.split("<span")[0];
-			var pos = pos_team.split(" - ")[0];
-			var team = pos_team.split(" - ")[1];
-			trade_results[i]["players"].push("{},{},{},{}".format(name,team,pos,true));
-		}
-	}
-
-	// now check if receive window is up
-	var win = document.getElementsByClassName("set-trade-player-modal");
-	if (win.length > 0) {
-		// find name of team that's showing
-		var name = win[0].getElementsByClassName("trade-roster-item-container selected")[0].getElementsByClassName("name")[0].innerText;
-		var rows = win[0].getElementsByClassName("team-roster-item");
-		var idx = team_idx[name];
-		// clear teams players
-		trade_results[idx]["players"] = [];
-		for (var i = 0; i < rows.length; ++i) {
-			var checked = false;
-			if ((" " + rows[i].className + " ").indexOf(" selected ") >= 0) {
-				checked = true;
+	var first_step = document.getElementsByClassName("rosters-container");
+	if (first_step.length) {
+		var teams = first_step[0].getElementsByClassName("roster-item-container");
+		for (var i = 0; i < teams.length; ++i) {
+			var teamname = teams[i].getElementsByClassName("name")[0].innerText;
+			team_names.push(teamname);
+			trade_results.push({"players": []});
+			var players = teams[i].getElementsByClassName("team-roster-item");
+			for (var j = 0; j < players.length; ++j) {
+				if (players[j].innerText.indexOf("Empty") >= 0) { continue; }
+				var pos_team = players[j].getElementsByClassName("position")[0].innerText.trim();
+				var name = players[j].getElementsByClassName("name-text")[0].innerText;
+				var pos = pos_team.split(" - ")[0];
+				var team = pos_team.split(" - ")[1];
+				trade_results[i]["players"].push("{},{},{},{}".format(name,team,pos,false));
 			}
-			// skip the selected players
-			name = rows[i].getElementsByClassName("name-text")[0].innerText;
-			var pos_team = rows[i].getElementsByClassName("position")[0].innerText.trim();
-			var pos = pos_team.split(" - ")[0];
-			var team = pos_team.split(" - ")[1];
-			trade_results[idx]["players"].push("{},{},{},{}".format(name,team,pos,checked));
+		}
+	} else {
+		var tables = document.getElementsByClassName("trade-state-sends");
+		var names = document.getElementsByClassName("acquire-trade-partner-item");
+		var team_idx = {};
+		trade_results = [];
+		for (var i = 0; i < names.length; ++i) {
+			var n = names[i].getElementsByClassName("name")[0].innerText;
+			team_names.push(n);
+			trade_results.push({"players": []});
+			team_idx[n] = i;
+		}
+
+		for (var i = 0; i < tables.length; ++i) {
+			var players = tables[i].getElementsByClassName("player-name");
+			for (var j = 0; j < players.length; ++j) {
+				var pos_team = players[j].getElementsByClassName("position")[0].innerText.trim();
+				var name = players[j].innerHTML.split("<span")[0];
+				var pos = pos_team.split(" - ")[0];
+				var team = pos_team.split(" - ")[1];
+				trade_results[i]["players"].push("{},{},{},{}".format(name,team,pos,true));
+			}
+		}
+
+		// now check if receive window is up
+		var win = document.getElementsByClassName("set-trade-player-modal");
+		if (win.length > 0) {
+			// find name of team that's showing
+			var name = win[0].getElementsByClassName("trade-roster-item-container selected")[0].getElementsByClassName("name")[0].innerText;
+			var rows = win[0].getElementsByClassName("team-roster-item");
+			var idx = team_idx[name];
+			// clear teams players
+			trade_results[idx]["players"] = [];
+			for (var i = 0; i < rows.length; ++i) {
+				var checked = false;
+				if ((" " + rows[i].className + " ").indexOf(" selected ") >= 0) {
+					checked = true;
+				}
+				// skip the selected players
+				name = rows[i].getElementsByClassName("name-text")[0].innerText;
+				var pos_team = rows[i].getElementsByClassName("position")[0].innerText.trim();
+				var pos = pos_team.split(" - ")[0];
+				var team = pos_team.split(" - ")[1];
+				input_ids[name.toLowerCase()] = i;
+				trade_results[idx]["players"].push("{},{},{},{}".format(name,team,pos,checked));
+			}
 		}
 	}
 } else if (is_cbs) {
@@ -229,6 +258,7 @@ if (is_espn) {
 		for (var j = 0; j < pos_teams.length; ++j) {
 			var name = names[j].innerText;
 			var pos_team = pos_teams[j].innerText.split(" | ");
+			input_ids[name.toLowerCase()] = checkboxes[j].name;
 			trade_results[j]["players"].push("{},{},{},{}".format(name,pos_team[1],pos_team[0],checkboxes[j].checked));
 		}
 	}
