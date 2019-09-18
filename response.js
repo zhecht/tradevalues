@@ -19,13 +19,15 @@ chrome.storage.local.get(null, function(storage) {
 		// keys are 'table_idx', 'btn_idx'
 		var step2 = window.location.search.substring(1).indexOf("step=2") !== -1;
 		var data = storage["input_ids"][name];
-		if (step2) {
-			var tables = document.getElementsByClassName("propose-trade-content")[0].children[1].children;
-		} else {
-			var tables = document.getElementsByClassName("players-table");
+		if (data) {
+			if (step2) {
+				var tables = document.getElementsByClassName("propose-trade-content")[0].children[1].children;
+			} else {
+				var tables = document.getElementsByClassName("players-table");
+			}
+			var btn = tables[data.table_idx].getElementsByTagName("button")[data.btn_idx];
+			btn.click();
 		}
-		var btn = tables[data.table_idx].getElementsByTagName("button")[data.btn_idx];
-		btn.click();
 	} else if (storage["is_nfl"]) {
 		var id = storage["input_ids"][name];
 		if (id)

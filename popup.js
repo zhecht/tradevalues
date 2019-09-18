@@ -125,9 +125,11 @@ function findBest() {
 
 	if (!players_picked && everyTeamHasPicked()) {
 		document.getElementById("continue").style = "text-align: right; display: block;";
+		document.getElementById("updated").getElementsByTagName("span")[0].style = "text-align: left;";
 	} else {
 		document.getElementById("continue").style = "display: none;";
-	}	
+		document.getElementById("updated").getElementsByTagName("span")[0].style = "text-align: center;";
+	}
 }
 
 function resetTotal() {
