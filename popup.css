@@ -1,6 +1,16 @@
+
+@font-face {
+	font-family: "VulfMono";
+	src: url("VulfMono-Regular.otf");
+}
+
+body {
+	font-family: "VulfMono";
+}
+
 table {
 	border-collapse: collapse;
-	width: 375px;
+	width: 500px;
 }
 tr {
 	border: 1px solid;
@@ -11,14 +21,20 @@ tr td:nth-child(1), tr th:nth-child(1) {
 .name,#totals_row td,.player_td {
 	border-right: 1px solid black;
 }
+#totals_row td {
+	text-align: center;
+}
+.player_td div {
+	display: flex;
+	justify-content: space-between;
+}
 td, th {
-	padding: 5px;
+	padding: 6px;
 }
 td:hover {
 	cursor: pointer;
 }
 div {
-	width: 375px;
 	display: flex;
 }
 button {

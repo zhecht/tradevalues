@@ -1,7 +1,7 @@
 {
 	"name": "Trade Value Calculator",
-	"version": "0.1.5.1",
-	"description": "Interactive trade value calculator with values calculated by /u/PeakedInHighSkool",
+	"version": "0.2.0.0",
+	"description": "Interactive Fantasy Football trade value calculator with values calculated by /u/PeakedInHighSkool",
 	"permissions": ["<all_urls>", "activeTab", "declarativeContent", "storage"],
 	"background": {
 		"scripts": ["background.js"],
