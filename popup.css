@@ -8,32 +8,63 @@ body {
 	font-family: "VulfMono";
 }
 
-table {
-	border-collapse: collapse;
-	width: 500px;
+#table_container {
+	overflow-y: auto;
+	max-height: 400px;
+	flex-direction: column;
 }
-tr {
-	border: 1px solid;
+
+ /* Hide scrollbar for Chrome, Safari and Opera */
+#table_container::-webkit-scrollbar {
+  display: none;
 }
-tr td:nth-child(1), tr th:nth-child(1) {
-	border-right: 1px solid;
+
+/* Hide scrollbar for IE, Edge and Firefox */
+#table_container {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+} 
+
+#table {
+	width: 600px;
+	flex-direction: column;
 }
-.name,#totals_row td,.player_td {
-	border-right: 1px solid black;
+
+.playerData {
+	position: relative;
+	flex: 1;
 }
-#totals_row td {
-	text-align: center;
-}
-.player_td div {
-	display: flex;
-	justify-content: space-between;
-}
-td, th {
-	padding: 6px;
-}
-td:hover {
+
+.playerData:hover {
 	cursor: pointer;
 }
+
+.playerData p {
+	margin: 0;
+	padding: 5px;
+}
+
+.playerData p.val {
+	position: absolute;
+	right: 5px;
+}
+
+#headerRow div {
+	flex: 1;
+	justify-content: center;
+	font-weight: bold;
+	padding: 5px;
+}
+#headerRow div, #totals_row td, .playerData {
+	border: 1px solid black;
+}
+
+.blackBar {
+	background: black;
+	opacity: 0.3;
+	height: 5px;
+}
+
 div {
 	display: flex;
 }
@@ -74,4 +105,11 @@ button.active {
 #updated span {
 	width: 100%;
 	padding: 5px;
+}
+
+#totals_row div {
+	flex: 1;
+	padding: 6px 0;
+	justify-content: center;
+	border: 1px solid;
 }

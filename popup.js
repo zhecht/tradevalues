@@ -33,14 +33,24 @@ function init_players_picked_per_team(results) {
 	}
 }
 
+function blackBar() {
+	const bar = document.createElement("div");
+	bar.className = "blackBar";
+	return bar;
+}
+
 function fillTable(results) {
 	var player_len = 0;
 	var all_tot = [];
+	const table = document.getElementById("table");
+	table.innerHTML = "";
+	table.appendChild(blackBar());
 
 	init_players_picked_per_team(results);
 	document.getElementById("total_teams").value = results["total_teams"];
+
 	for (var i = 0; i < results["total_teams"]; ++i) {
-		document.getElementsByClassName("name")[i].innerText = results["team_names"][i];
+		document.getElementById("headerRow").getElementsByTagName("div")[i].innerText = results["team_names"][i];
 		if (results["teams"]["team{}".format(i)].length > player_len) {
 			player_len = results["teams"]["team{}".format(i)].length;
 		}
@@ -49,7 +59,7 @@ function fillTable(results) {
 	for (var p = 0; p < player_len; ++p) {
 		var all_names = [], all_vals = [], all_displays = [], all_classes = [];
 		for (var t = 0; t < results["total_teams"]; ++t) {
-			all_classes.push("player_td");
+			all_classes.push("playerData");
 
 			if (p < results["teams"]["team{}".format(t)].length) {
 				var sp = results["teams"]["team{}".format(t)][p].split(",");
@@ -71,23 +81,24 @@ function fillTable(results) {
 			}
 		}
 
-		var tr = document.createElement("tr"); tr.className = "player_row";
+		const row = document.createElement("div");
+		row.className = "playerRow";
 		for (var i = 0; i < results["total_teams"]; ++i) {
-			var td = document.createElement("td");
-			td.className = all_classes[i];
-			td.id = "{}_{}".format(i, all_vals[i]);
-			var div = document.createElement("div");
-			var name_span = document.createElement("span");
-			name_span.innerText = all_names[i];
-			var val_span = document.createElement("span");
-			val_span.style["padding-right"] = "5px";
-			val_span.innerText = all_displays[i];
-			div.appendChild(name_span);
-			div.appendChild(val_span);
-			td.appendChild(div);
-			tr.appendChild(td);
+			const col = document.createElement("div");
+			col.className = all_classes[i];
+			col.id = "{}_{}".format(i, all_vals[i]);
+			const name = document.createElement("p");
+			name.innerText = all_names[i];
+			const val = document.createElement("p");
+			val.className = "val";
+			if (all_displays[i]) {
+				val.innerText = all_displays[i].toFixed(1);
+			}
+			col.appendChild(name);
+			col.appendChild(val);
+			row.appendChild(col);
 		}
-		document.getElementById("table").appendChild(tr);
+		table.appendChild(row);
 	}
 	
 	// black bar
@@ -96,20 +107,12 @@ function fillTable(results) {
 	td.colSpan = results["is_sleeper"] ? results["total_teams"].toString() : "2";
 	td.style = "background-color: black; opacity: .4;";
 	tr.appendChild(td);
-	document.getElementById("table").appendChild(tr);
+	table.appendChild(tr);
 
 	// total display
-	var tr = document.createElement("tr");
-	tr.id = "totals_row";
 	for (var i = 0; i < results["total_teams"]; ++i) {
-		var td = document.createElement("td");
-		td.id = "total{}".format(i);
-		td.innerText = all_tot[i];
-		tr.appendChild(td);
+		document.getElementById(`total${i}`).innerText = all_tot[i];
 	}
-
-	document.getElementById("table").appendChild(tr);
-
 	findBest();
 }
 
@@ -159,24 +162,27 @@ var changeScoring = function() {
 	resetBtns();
 	this.className = "active";
 
-	var rows = document.getElementsByClassName("player_row");
+	const rows = document.getElementsByClassName("playerRow");
 	var total_teams = parseInt(document.getElementById("total_teams").value);
 	var all_tot = [];
 	for (var i = 0; i < total_teams; ++i) {
 		all_tot.push(0);
 	}
 
-	for (var i = 0; i < rows.length; ++i) {
-		var tds = rows[i].getElementsByTagName("td");
-		for (var t = 0; t < total_teams; ++t) {
-			var sp = tds[t].id.split("_");
+	for (let i = 0; i < rows.length; ++i) {
+		const cols = rows[i].getElementsByClassName("playerData");
+		for (let t = 0; t < total_teams; ++t) {
+			const sp = cols[t].id.split("_");
 			if (sp.length > 2) {
-				var val = parseFloat(sp[scoring_idx]);
-				tds[t].innerText = "{} - {}".format(val, tds[t].innerText.split(" - ")[1]);
+				const val = parseFloat(sp[scoring_idx]);
+				cols[t].getElementsByTagName("p")[0].innerText = cols[t].getElementsByTagName("p")[0].innerText;
+				if (val) {
+					cols[t].getElementsByTagName("p")[1].innerText = val.toFixed(1);
+				}
 				if (players_picked) {
 					all_tot[t] += val;
 				} else {
-					if ((" " + tds[t].className + " ").indexOf(" clicked ") > -1) {
+					if (cols[t].classList.contains("clicked")) {
 						all_tot[t] += val;
 					}
 				}
@@ -217,14 +223,14 @@ var increment = function() {
 		resetTotal();
 	}
 
-	if ( (" " + this.className + " ").indexOf(" clicked ") > -1 )  {
+	if (this.classList.contains("clicked"))  {
 		// uncheck ad decrement from total
 		should_click = false;
-		this.className = this.className.split(" ")[0];
+		this.classList.remove("clicked");
 		total.innerText = parseFloat(total.innerText) - val;
 		players_picked_per_team[team]--;
 	} else {
-		this.className += " clicked";
+		this.classList.add("clicked");
 		total.innerText = parseFloat(total.innerText) + val;
 		players_picked_per_team[team]++;
 	}
@@ -236,7 +242,7 @@ var increment = function() {
 	if (!players_picked && !evaluate) {
 		chrome.storage.local.set({
 			clicked_team: team,
-			clicked_name: this.getElementsByTagName("span")[0].innerText,
+			clicked_name: this.getElementsByTagName("p")[0].innerText,
 			should_click: should_click
 		}, function() {});
 		chrome.tabs.executeScript(null, {file: "response.js"}, onResponseGot);
@@ -258,13 +264,11 @@ function last_updated(date_str) {
 }
 
 function setup_html(num_teams) {
-	for (var i = 0 ; i < num_teams; ++i) {
-		var th = document.createElement("th");
-		th.className = "name";
-		document.getElementById("header_row").appendChild(th);
+	for (let i = 0 ; i < num_teams; ++i) {
+		const div = document.createElement("div");
+		document.getElementById("headerRow").appendChild(div);
 		players_picked_per_team.push(0);
 	}
-	document.getElementById("black_bar").colSpan = num_teams.toString();
 }
 
 function callback(results) {
@@ -283,7 +287,7 @@ function callback(results) {
 				var j = JSON.parse(this.responseText);
 				last_updated(j["updated"]);
 				fillTable({...j, ...res});
-				var tds = document.getElementsByClassName("player_td");
+				const tds = document.getElementsByClassName("playerData");
 				for (var i = 0; i < tds.length; ++i) {
 					if (tds[i].innerText.trim() != "-") {
 						tds[i].addEventListener("click", increment, false);
