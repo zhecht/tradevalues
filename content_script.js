@@ -404,8 +404,9 @@ if (is_espn) {
 		team_name0 = document.getElementById("viewtradeactions").getElementsByTagName("h2")[0].innerHTML;
 		team_name1 = document.getElementById("viewtradeactions").getElementsByTagName("h2")[1].innerHTML;
 	} else {
-		team_name0 = document.getElementById("proposetradeform").getElementsByTagName("h2")[0].innerHTML;
-		team_name1 = document.getElementById("proposetradeform").getElementsByTagName("h2")[1].innerHTML;
+		const teamNames = document.querySelectorAll("#proposetradeform div[data-tst='fantasy-team-overview-name']");
+		team_name0 = teamNames[0].innerText;
+		team_name1 = teamNames[1].innerText;
 	}
 }
 
