@@ -245,7 +245,12 @@ var increment = function() {
 			clicked_name: this.getElementsByTagName("p")[0].innerText,
 			should_click: should_click
 		}, function() {});
-		chrome.tabs.executeScript(null, {file: "response.js"}, onResponseGot);
+		chrome.tabs.query({active: true}, function (tabs) {
+			chrome.scripting.executeScript({
+				target: {tabId: tabs[0].id},
+				files: ["response.js"]
+			});
+		});
 	}
 }
 
@@ -312,7 +317,15 @@ function onContinueGot() {
 }
 
 function continueTrade() {
-	chrome.tabs.executeScript(null, {file: "continue_trade.js"}, onContinueGot);
+	chrome.tabs.query({active: true}, function (tabs) {
+		chrome.scripting.executeScript({
+			target: {tabId: tabs[0].id},
+			files: ["continue_trade.js"]
+		})
+		.then(res => {
+			window.close();
+		})
+	})
 }
 
 // init globals
@@ -320,7 +333,15 @@ var is_espn = false, is_nfl = false, is_yahoo = false, is_sleeper = false, is_cb
 var players_picked = false, evaluate = false, viewtrade = false;
 var players_picked_per_team = [];
 var global_total_teams = 0;
-chrome.tabs.executeScript(null, {file: "content_script.js"}, callback);
+chrome.tabs.query({active: true}, function (tabs) {
+	chrome.scripting
+		.executeScript({
+			target: {tabId: tabs[0].id},
+			files: ["content_script.js"]
+		})
+		.then(results => callback(results))
+	}
+)
 
 var btns = document.getElementsByTagName("button");
 for (var i = 0; i < btns.length; ++i) {

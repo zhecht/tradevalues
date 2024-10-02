@@ -1,20 +1,20 @@
 {
 	"name": "Trade Value Calculator",
-	"version": "0.2.0.2",
+	"version": "3.0.0.0",
 	"description": "Interactive Fantasy Football trade value calculator with values calculated by /u/PeakedInHighSkool",
-	"permissions": ["<all_urls>", "activeTab", "declarativeContent", "storage"],
+	"permissions": ["scripting", "activeTab", "declarativeContent", "storage"],
+	"host_permissions": [
+		"https://zhecht.pythonanywhere.com/*"	
+	],
 	"background": {
-		"scripts": ["background.js"],
-		"persistent": false
+		"service_worker": "background.js",
+		"type": "module"
 	},
-	"page_action": {
-		"default_popup": "popup.html",
-		"default_icon": {
-			"48": "images/trade_48.png"
-		}
+	"action": {
+		"default_popup": "popup.html"
 	},
 	"icons": {
 		"48": "images/trade_48.png"
 	},
-	"manifest_version": 2
+	"manifest_version": 3
 }
